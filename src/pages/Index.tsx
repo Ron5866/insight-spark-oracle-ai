@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import Header from '@/components/Header';
+import HeaderWrapper from '@/components/HeaderWrapper';
 import ChatInput from '@/components/ChatInput';
 import MessageList from '@/components/MessageList';
 import ResultVisualizer from '@/components/ResultVisualizer';
@@ -74,7 +74,7 @@ const Index = () => {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
+      <HeaderWrapper />
       <div className="flex flex-1 flex-col">
         <div className="container mx-auto flex flex-1 flex-col">
           <MessageList messages={messages} isProcessing={isProcessing} />
