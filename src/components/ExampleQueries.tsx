@@ -1,13 +1,14 @@
-
+import { useEffect, useState } from 'react';
 import { Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { fetchExampleQueries } from '@/utils/apiService';
 
 interface ExampleQueriesProps {
   onSelectQuery: (query: string) => void;
 }
 
 const ExampleQueries = ({ onSelectQuery }: ExampleQueriesProps) => {
-  const examples = [
+  const [examples, setExamples] = useState([
     {
       title: "Sales Performance",
       query: "What were our top 3 performing products last quarter by revenue, and how did they compare to the previous quarter?",
@@ -33,7 +34,38 @@ const ExampleQueries = ({ onSelectQuery }: ExampleQueriesProps) => {
       query: "What's our customer acquisition cost trend over the last 6 months broken down by marketing channel?",
       category: "Finance"
     }
-  ];
+  ]);
+
+  useEffect(() => {
+    const loadExampleQueries = async () => {
+      try {
+        const queries = await fetchExampleQueries();
+        if (queries && queries.length > 0) {
+          const categoryOptions = ["Sales", "Marketing", "Strategy", "Finance", "Operations"];
+          
+          const formattedExamples = queries.map((query, index) => ({
+            title: getQueryTitle(query),
+            query: query,
+            category: categoryOptions[index % categoryOptions.length]
+          }));
+          
+          setExamples(formattedExamples);
+        }
+      } catch (error) {
+        console.error('Failed to load example queries:', error);
+        // Keep the default examples
+      }
+    };
+    
+    loadExampleQueries();
+  }, []);
+
+  // Helper function to generate a title from a query
+  const getQueryTitle = (query: string): string => {
+    // Take the first few words of the query
+    const words = query.split(' ').slice(0, 3).join(' ');
+    return words.charAt(0).toUpperCase() + words.slice(1) + '...';
+  };
 
   return (
     <Card className="mt-8" id="examples">

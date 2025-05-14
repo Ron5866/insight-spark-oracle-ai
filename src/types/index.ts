@@ -22,4 +22,5 @@ export interface InsightResponse {
   queryResults?: QueryResult[];
   charts?: ChartData[];
   relatedQuestions?: string[];
+  confidence?: number;
 }

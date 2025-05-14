@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import HeaderWrapper from '@/components/HeaderWrapper';
 import ChatInput from '@/components/ChatInput';
@@ -8,7 +8,8 @@ import ResultVisualizer from '@/components/ResultVisualizer';
 import ExampleQueries from '@/components/ExampleQueries';
 import AboutSection from '@/components/AboutSection';
 import { Message } from '@/types';
-import { processQuery, getExampleQueries } from '@/utils/mockDataService';
+import { processQuery, fetchExampleQueries, fallbackToMock } from '@/utils/apiService';
+import { toast } from "@/components/ui/use-toast";
 
 const Index = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -18,9 +19,26 @@ const Index = () => {
     queryResults?: any;
     charts?: any;
     sqlQuery?: string;
+    confidence?: number;
   } | null>(null);
   
-  const exampleQueries = getExampleQueries();
+  const [exampleQueries, setExampleQueries] = useState<string[]>([]);
+
+  useEffect(() => {
+    const loadExampleQueries = async () => {
+      try {
+        const queries = await fetchExampleQueries();
+        setExampleQueries(queries);
+      } catch (error) {
+        console.error('Failed to load example queries:', error);
+        // Import mock queries as fallback
+        const { getExampleQueries } = require('@/utils/mockDataService');
+        setExampleQueries(getExampleQueries());
+      }
+    };
+    
+    loadExampleQueries();
+  }, []);
 
   const handleSendMessage = async (content: string) => {
     // Add user message to the chat
@@ -35,8 +53,8 @@ const Index = () => {
     setIsProcessing(true);
     
     try {
-      // Process the query (in a real app, this would call an API endpoint)
-      const response = await processQuery(content);
+      // Process the query using our API
+      const response = await processQuery(content).catch(() => fallbackToMock(content));
       
       // Add assistant message to the chat
       const assistantMessage: Message = {
@@ -53,8 +71,22 @@ const Index = () => {
         answer: response.answer,
         queryResults: response.queryResults,
         charts: response.charts,
-        sqlQuery: response.queryResults?.[0]?.sql
+        sqlQuery: response.queryResults?.[0]?.sql,
+        confidence: response.confidence
       });
+
+      // Show confidence level if available
+      if (response.confidence) {
+        const confidenceLevel = 
+          response.confidence >= 80 ? 'high' : 
+          response.confidence >= 50 ? 'moderate' : 'low';
+        
+        toast({
+          title: `Analysis Confidence: ${confidenceLevel}`,
+          description: `The AI's confidence in this answer is ${response.confidence}%`,
+          variant: response.confidence >= 70 ? "default" : "destructive"
+        });
+      }
     } catch (error) {
       console.error('Error processing query:', error);
       
@@ -67,6 +99,12 @@ const Index = () => {
       };
       
       setMessages(prev => [...prev, errorMessage]);
+      
+      toast({
+        title: "Error",
+        description: "Failed to process your query. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setIsProcessing(false);
     }
@@ -86,6 +124,7 @@ const Index = () => {
                 queryResults={currentResponse.queryResults}
                 charts={currentResponse.charts}
                 sqlQuery={currentResponse.sqlQuery}
+                confidence={currentResponse.confidence}
               />
             </div>
           )}
