@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QueryResult, ChartData } from "@/types";
-import { BarChart, LineChart, PieChart, AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
+import { BarChart, Bar, LineChart, Line, PieChart, Pie, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
 import { BarChart as BarChartIcon, LineChart as LineChartIcon, PieChart as PieChartIcon, AreaChart as AreaChartIcon, Table as TableIcon, Code as CodeIcon, AlertCircle, Gauge } from 'lucide-react';
 
 interface ResultVisualizerProps {
@@ -37,7 +37,7 @@ const ResultVisualizer = ({ answer, queryResults, charts, sqlQuery, confidence }
               <YAxis />
               <Tooltip />
               <Legend />
-              <BarChart dataKey="value" fill="#4f46e5" />
+              <Bar dataKey="value" fill="#4f46e5" />
             </BarChart>
           </ResponsiveContainer>
         );
@@ -50,7 +50,7 @@ const ResultVisualizer = ({ answer, queryResults, charts, sqlQuery, confidence }
               <YAxis />
               <Tooltip />
               <Legend />
-              <LineChart type="monotone" dataKey="value" stroke="#4f46e5" />
+              <Line type="monotone" dataKey="value" stroke="#4f46e5" />
             </LineChart>
           </ResponsiveContainer>
         );
@@ -87,7 +87,7 @@ const ResultVisualizer = ({ answer, queryResults, charts, sqlQuery, confidence }
               <YAxis />
               <Tooltip />
               <Legend />
-              <AreaChart type="monotone" dataKey="value" stroke="#4f46e5" fill="#4f46e5" fillOpacity={0.2} />
+              <Area type="monotone" dataKey="value" stroke="#4f46e5" fill="#4f46e5" fillOpacity={0.2} />
             </AreaChart>
           </ResponsiveContainer>
         );
